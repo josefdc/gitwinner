@@ -1,20 +1,60 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+
+# 🎰 GitWinner
+
+**Convierte los comentarios de un Issue de GitHub en un emocionante sorteo estilo máquina tragamonedas.**
+
+[![Deploy to GitHub Pages](https://github.com/josefdc/gitwinner/actions/workflows/deploy.yml/badge.svg)](https://github.com/josefdc/gitwinner/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[Demo en Vivo](https://josefdc.github.io/gitwinner/) · [Reportar Bug](https://github.com/josefdc/gitwinner/issues)
+
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## ✨ Características
 
-View your app in AI Studio: https://ai.studio/apps/drive/1WwzgqyiTPwwGWKDfntin_gyLOvqOUQrt
+- 🎰 **Animación de Slot Machine** - Experiencia visual tipo casino
+- 👥 **Carga automática de participantes** - Desde cualquier Issue de GitHub
+- 🔒 **Selección criptográficamente segura** - Usando `crypto.getRandomValues()`
+- 🎊 **Confeti de celebración** - Animación festiva para el ganador
+- 📱 **Diseño responsivo** - Funciona en móviles y escritorio
+- 🌙 **Tema oscuro** - Estilo GitHub Dark
 
-## Run Locally
+## 🚀 Ejecutar Localmente
 
-**Prerequisites:**  Node.js
+**Requisitos:** Node.js 18+
 
+```bash
+# Clonar el repositorio
+git clone https://github.com/josefdc/gitwinner.git
+cd gitwinner
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
+```
+
+La aplicación estará disponible en `http://localhost:3000`
+
+## 🛠️ Tecnologías
+
+- **React 19** - Biblioteca de UI
+- **TypeScript** - Tipado estático
+- **Vite** - Build tool ultrarrápido
+- **Tailwind CSS** - Estilos utilitarios
+- **Lucide React** - Iconos
+
+## 📖 Uso
+
+1. Pega la URL de un Issue de GitHub (ej: `https://github.com/owner/repo/issues/123`)
+2. Click en **"Fetch Contenders"** para cargar los participantes
+3. Click en **"START RAFFLE"** para iniciar el sorteo
+4. ¡Celebra con el ganador! 🎉
+
+## 📄 Licencia
+
+MIT © [josefdc](https://github.com/josefdc)
