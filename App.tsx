@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Github, Play, RefreshCw, AlertCircle, SkipForward, Trophy, Users, Crown, UserCheck, RotateCcw } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Github, Play, RefreshCw, AlertCircle, SkipForward, Trophy, Users, Crown, UserCheck, RotateCcw, Sparkles } from 'lucide-react';
 import { AppState, Candidate } from './types';
 import { fetchParticipants } from './services/githubService';
-import { SlotMachine } from './components/SlotMachine';
-import { WinnerAnnouncer } from './components/WinnerAnnouncer';
+import { MultiSlotMachine } from './components/MultiSlotMachine';
+import { RoundWinnersDisplay } from './components/RoundWinnersDisplay';
 import { Confetti } from './components/Confetti';
 
 // Configuración de rondas para DevFest Pereira
@@ -13,29 +13,33 @@ const ROUNDS_CONFIG = [
   { id: 3, name: 'Gran Final', winners: 1, icon: Crown, color: 'from-yellow-500 to-orange-500' },
 ];
 
+// Estados del sorteo por ronda
+type RoundState = 'pending' | 'spinning' | 'completed';
+
 function App() {
   const [state, setState] = useState<AppState>(AppState.IDLE);
   const [issueUrl, setIssueUrl] = useState('');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [availableCandidates, setAvailableCandidates] = useState<Candidate[]>([]);
-  const [winner, setWinner] = useState<Candidate | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Estado para múltiples rondas
-  const [currentRound, setCurrentRound] = useState(0); // 0, 1, 2
-  const [currentWinnerInRound, setCurrentWinnerInRound] = useState(0);
+  // Estado para rondas completas
+  const [currentRound, setCurrentRound] = useState(0);
+  const [roundState, setRoundState] = useState<RoundState>('pending');
   const [allWinners, setAllWinners] = useState<{round: number, winners: Candidate[]}[]>([
     { round: 1, winners: [] },
     { round: 2, winners: [] },
     { round: 3, winners: [] },
   ]);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const currentRoundConfig = ROUNDS_CONFIG[currentRound];
-  const winnersInCurrentRound = allWinners[currentRound]?.winners || [];
-  const remainingInRound = currentRoundConfig ? currentRoundConfig.winners - winnersInCurrentRound.length : 0;
   const totalWinnersNeeded = ROUNDS_CONFIG.reduce((acc, r) => acc + r.winners, 0);
+  const totalWinners = allWinners.reduce((acc, r) => acc + r.winners.length, 0);
+  const hasEnoughParticipants = candidates.length >= totalWinnersNeeded;
+  const isAllComplete = currentRound === ROUNDS_CONFIG.length - 1 && roundState === 'completed';
 
   const handleFetch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -63,7 +67,6 @@ function App() {
     setIsRefreshing(true);
     try {
       const data = await fetchParticipants(issueUrl);
-      // Mantener los ganadores previos excluidos
       const winnersIds = allWinners.flatMap(r => r.winners.map(w => w.id));
       const newAvailable = data.filter(c => !winnersIds.includes(c.id));
       
@@ -78,60 +81,48 @@ function App() {
   };
 
   const startRaffleSession = () => {
-    // Confirmar inicio del sorteo
     setCurrentRound(0);
-    setCurrentWinnerInRound(0);
+    setRoundState('pending');
     setAllWinners([
       { round: 1, winners: [] },
       { round: 2, winners: [] },
       { round: 3, winners: [] },
     ]);
+    setShowConfetti(false);
     setState(AppState.READY);
   };
 
-  const startRaffle = () => {
-    if (availableCandidates.length === 0) return;
-    
-    setState(AppState.SPINNING);
-    
-    // Cryptographically secure random selection
-    const array = new Uint32Array(1);
-    window.crypto.getRandomValues(array);
-    const randomIndex = array[0] % availableCandidates.length;
-    
-    setWinner(availableCandidates[randomIndex]);
+  const startRound = () => {
+    if (availableCandidates.length < currentRoundConfig.winners) return;
+    setRoundState('spinning');
+    setShowConfetti(false);
   };
 
-  const handleSpinEnd = (selectedWinner: Candidate) => {
-    setState(AppState.WINNER);
-    
-    // Agregar ganador a la ronda actual
+  const handleRoundComplete = useCallback((winners: Candidate[]) => {
+    // Actualizar ganadores
     setAllWinners(prev => {
       const updated = [...prev];
       updated[currentRound] = {
         ...updated[currentRound],
-        winners: [...updated[currentRound].winners, selectedWinner]
+        winners: winners
       };
       return updated;
     });
     
-    // Remover ganador de los disponibles
-    setAvailableCandidates(prev => prev.filter(c => c.id !== selectedWinner.id));
-    setCurrentWinnerInRound(prev => prev + 1);
-  };
-
-  const continueRound = () => {
-    // Continuar con el siguiente ganador en la misma ronda
-    setWinner(null);
-    setState(AppState.READY);
-  };
+    // Remover ganadores de disponibles
+    setAvailableCandidates(prev => 
+      prev.filter(c => !winners.some(w => w.id === c.id))
+    );
+    
+    setRoundState('completed');
+    setShowConfetti(true);
+  }, [currentRound]);
 
   const nextRound = () => {
     if (currentRound < ROUNDS_CONFIG.length - 1) {
       setCurrentRound(prev => prev + 1);
-      setCurrentWinnerInRound(0);
-      setWinner(null);
-      setState(AppState.READY);
+      setRoundState('pending');
+      setShowConfetti(false);
     }
   };
 
@@ -139,11 +130,11 @@ function App() {
     setState(AppState.IDLE);
     setCandidates([]);
     setAvailableCandidates([]);
-    setWinner(null);
     setIssueUrl('');
     setCurrentRound(0);
-    setCurrentWinnerInRound(0);
+    setRoundState('pending');
     setLastFetchTime(null);
+    setShowConfetti(false);
     setAllWinners([
       { round: 1, winners: [] },
       { round: 2, winners: [] },
@@ -151,15 +142,10 @@ function App() {
     ]);
   };
 
-  const isRoundComplete = winnersInCurrentRound.length >= (currentRoundConfig?.winners || 0);
-  const isAllComplete = currentRound === ROUNDS_CONFIG.length - 1 && isRoundComplete;
-  const totalWinners = allWinners.reduce((acc, r) => acc + r.winners.length, 0);
-  const hasEnoughParticipants = candidates.length >= totalWinnersNeeded;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800 flex flex-col items-center py-8 px-4 relative">
       
-      {state === AppState.WINNER && <Confetti />}
+      {showConfetti && <Confetti />}
 
       <header className="mb-6 text-center max-w-2xl">
         <div className="flex items-center justify-center gap-3 mb-2">
@@ -215,7 +201,6 @@ function App() {
         {/* Loaded Stage - Vista previa de participantes */}
         {state === AppState.LOADED && (
           <div className="max-w-3xl mx-auto">
-            {/* Header con stats */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -272,7 +257,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Warning si no hay suficientes participantes */}
               {!hasEnoughParticipants && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-start gap-3" role="alert">
                   <AlertCircle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} aria-hidden="true" />
@@ -286,7 +270,6 @@ function App() {
                 </div>
               )}
 
-              {/* Botones de acción */}
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={reset}
@@ -319,7 +302,7 @@ function App() {
                 role="list"
                 aria-label="Lista de participantes del sorteo"
               >
-                {candidates.map((candidate, idx) => (
+                {candidates.map((candidate) => (
                   <div 
                     key={candidate.id}
                     className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -340,7 +323,7 @@ function App() {
         )}
 
         {/* Game Stage */}
-        {(state === AppState.READY || state === AppState.SPINNING || state === AppState.WINNER) && (
+        {state === AppState.READY && (
           <div className="flex flex-col lg:flex-row gap-6">
             
             {/* Panel izquierdo - Rondas y Ganadores */}
@@ -352,16 +335,18 @@ function App() {
                   {ROUNDS_CONFIG.map((round, idx) => {
                     const RoundIcon = round.icon;
                     const isActive = idx === currentRound;
-                    const isCompleted = idx < currentRound || (idx === currentRound && isRoundComplete);
+                    const isCompleted = idx < currentRound || (idx === currentRound && roundState === 'completed');
                     const roundWinners = allWinners[idx]?.winners || [];
                     
                     return (
                       <div 
                         key={round.id}
                         className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                          isActive ? `bg-gradient-to-r ${round.color} text-white shadow-md` : 
-                          isCompleted ? 'bg-green-50 text-green-700 border border-green-200' : 
-                          'bg-gray-50 text-gray-400'
+                          isActive && roundState !== 'completed'
+                            ? `bg-gradient-to-r ${round.color} text-white shadow-md` 
+                            : isCompleted 
+                            ? 'bg-green-50 text-green-700 border border-green-200' 
+                            : 'bg-gray-50 text-gray-400'
                         }`}
                       >
                         <RoundIcon size={20} />
@@ -378,7 +363,7 @@ function App() {
                 </div>
               </div>
 
-              {/* Lista de Ganadores */}
+              {/* Lista de Ganadores de rondas anteriores */}
               {totalWinners > 0 && (
                 <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200 max-h-64 overflow-y-auto">
                   <h3 className="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wide">
@@ -391,7 +376,7 @@ function App() {
                           <p className="text-xs text-gray-400 font-mono mb-1">
                             {ROUNDS_CONFIG[roundIdx].name}
                           </p>
-                          {round.winners.map((w, i) => (
+                          {round.winners.map((w) => (
                             <div key={w.id} className="flex items-center gap-2 py-1">
                               <img src={w.avatarUrl} alt={w.login} className="w-6 h-6 rounded-full" />
                               <span className="text-sm font-medium text-gray-700 truncate">{w.login}</span>
@@ -422,7 +407,7 @@ function App() {
               <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
                 <button
                   onClick={handleRefresh}
-                  disabled={isRefreshing}
+                  disabled={isRefreshing || roundState === 'spinning'}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all disabled:opacity-50"
                   aria-label={isRefreshing ? 'Actualizando participantes...' : 'Actualizar lista de participantes'}
                 >
@@ -437,93 +422,91 @@ function App() {
               </div>
             </div>
 
-            {/* Panel central - Slot Machine */}
+            {/* Panel central */}
             <div className="flex-1 flex flex-col items-center">
               
-              {/* Header de ronda actual */}
-              {currentRoundConfig && (
-                <div className={`mb-4 px-6 py-2 rounded-full bg-gradient-to-r ${currentRoundConfig.color} text-white font-bold shadow-lg`}>
-                  {currentRoundConfig.name} - {remainingInRound > 0 ? `Faltan ${remainingInRound}` : '¡Completada!'}
+              {/* Estado: Pendiente - Mostrar botón para iniciar ronda */}
+              {roundState === 'pending' && (
+                <div className="text-center py-8">
+                  <div className={`inline-flex items-center gap-2 px-6 py-2 rounded-full bg-gradient-to-r ${currentRoundConfig.color} text-white font-bold mb-6`}>
+                    {React.createElement(currentRoundConfig.icon, { size: 24 })}
+                    <span className="text-xl">{currentRoundConfig.name}</span>
+                  </div>
+                  
+                  <p className="text-gray-600 mb-6">
+                    {currentRoundConfig.id === 3 
+                      ? '¡Es hora del gran final! Un ganador será elegido.'
+                      : `Se sortearán ${currentRoundConfig.winners} ganadores en esta ronda.`
+                    }
+                  </p>
+                  
+                  <button
+                    onClick={startRound}
+                    disabled={availableCandidates.length < currentRoundConfig.winners}
+                    className={`group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white text-xl transition-all duration-200 bg-gradient-to-r ${currentRoundConfig.color} rounded-full hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ring-offset-slate-50 transform active:scale-95 hover:scale-105 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:hover:scale-100`}
+                    aria-label={`Iniciar ${currentRoundConfig.name}`}
+                  >
+                    <Sparkles className="mr-3" size={28} aria-hidden="true" />
+                    ¡INICIAR {currentRoundConfig.name.toUpperCase()}!
+                  </button>
+                  
+                  {availableCandidates.length < currentRoundConfig.winners && (
+                    <p className="mt-4 text-red-500 text-sm">
+                      No hay suficientes participantes ({availableCandidates.length}/{currentRoundConfig.winners} necesarios)
+                    </p>
+                  )}
                 </div>
               )}
 
-              <SlotMachine 
-                candidates={availableCandidates}
-                winner={winner}
-                isSpinning={state === AppState.SPINNING}
-                onSpinEnd={handleSpinEnd}
-              />
+              {/* Estado: Spinning - Mostrar MultiSlotMachine */}
+              {roundState === 'spinning' && (
+                <MultiSlotMachine
+                  candidates={availableCandidates}
+                  winnersToSelect={currentRoundConfig.winners}
+                  isSpinning={true}
+                  onAllWinnersSelected={handleRoundComplete}
+                  roundColor={currentRoundConfig.color}
+                  roundName={currentRoundConfig.name}
+                  isGrandFinale={currentRoundConfig.id === 3}
+                />
+              )}
 
-              {/* Controles */}
-              <div className="mt-6 flex flex-col items-center gap-4">
-                {/* Live region for screen readers */}
-                <div className="sr-only" role="status" aria-live="polite">
-                  {state === AppState.SPINNING && 'Sorteando ganador...'}
-                  {state === AppState.WINNER && winner && `¡El ganador es ${winner.login}!`}
-                </div>
-
-                {state === AppState.READY && !isAllComplete && (
-                  <button
-                    onClick={startRaffle}
-                    disabled={availableCandidates.length === 0}
-                    className={`group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-gradient-to-r ${currentRoundConfig?.color || 'from-blue-600 to-green-500'} rounded-full hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ring-offset-slate-50 transform active:scale-95 hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100`}
-                    aria-label={`Sortear ganador número ${winnersInCurrentRound.length + 1} de ${currentRoundConfig?.name}`}
-                  >
-                    <Play className="mr-2 fill-current" aria-hidden="true" />
-                    ¡SORTEAR GANADOR {winnersInCurrentRound.length + 1}!
-                  </button>
-                )}
-
-                {state === AppState.SPINNING && (
-                  <div className="text-gray-500 font-mono animate-pulse text-lg" aria-hidden="true">
-                    SORTEANDO...
+              {/* Estado: Completado - Mostrar ganadores de la ronda */}
+              {roundState === 'completed' && (
+                <div className="w-full">
+                  <RoundWinnersDisplay
+                    winners={allWinners[currentRound]?.winners || []}
+                    roundName={currentRoundConfig.name}
+                    roundColor={currentRoundConfig.color}
+                    isGrandFinale={currentRoundConfig.id === 3}
+                  />
+                  
+                  <div className="mt-8 flex justify-center gap-4">
+                    {!isAllComplete ? (
+                      <button
+                        onClick={nextRound}
+                        className={`px-8 py-4 bg-gradient-to-r ${ROUNDS_CONFIG[currentRound + 1]?.color} text-white rounded-full font-bold shadow-lg hover:opacity-90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-lg`}
+                        aria-label={`Continuar a ${ROUNDS_CONFIG[currentRound + 1]?.name}`}
+                      >
+                        <SkipForward size={24} aria-hidden="true" />
+                        Continuar a {ROUNDS_CONFIG[currentRound + 1]?.name}
+                      </button>
+                    ) : (
+                      <div className="text-center" role="status" aria-live="polite">
+                        <p className="text-3xl font-black text-green-600 mb-2">🎉 ¡Sorteo Completado!</p>
+                        <p className="text-gray-500 mb-6">Todos los {totalWinners} ganadores han sido seleccionados</p>
+                        <button
+                          onClick={reset}
+                          className="px-8 py-4 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 hover:scale-105 active:scale-95 transition-all text-lg"
+                          aria-label="Iniciar un nuevo sorteo"
+                        >
+                          Nuevo Sorteo
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {state === AppState.WINNER && winner && (
-                  <>
-                    <WinnerAnnouncer winner={winner} roundName={currentRoundConfig?.name} />
-                    
-                    <div className="flex gap-3 mt-4">
-                      {!isRoundComplete && (
-                        <button
-                          onClick={continueRound}
-                          className={`px-6 py-3 bg-gradient-to-r ${currentRoundConfig?.color} text-white rounded-full font-bold shadow-lg hover:opacity-90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2`}
-                          aria-label={`Continuar con siguiente ganador, quedan ${remainingInRound - 1} más`}
-                        >
-                          <Play size={18} aria-hidden="true" />
-                          Siguiente Ganador ({remainingInRound - 1} más)
-                        </button>
-                      )}
-                      
-                      {isRoundComplete && !isAllComplete && (
-                        <button
-                          onClick={nextRound}
-                          className={`px-6 py-3 bg-gradient-to-r ${ROUNDS_CONFIG[currentRound + 1]?.color} text-white rounded-full font-bold shadow-lg hover:opacity-90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2`}
-                          aria-label={`Ir a ${ROUNDS_CONFIG[currentRound + 1]?.name}`}
-                        >
-                          <SkipForward size={18} aria-hidden="true" />
-                          Ir a {ROUNDS_CONFIG[currentRound + 1]?.name}
-                        </button>
-                      )}
-
-                      {isAllComplete && (
-                        <div className="text-center" role="status" aria-live="polite">
-                          <p className="text-2xl font-bold text-green-600 mb-2">🎉 ¡Sorteo Completado!</p>
-                          <p className="text-gray-500 mb-4">Todos los ganadores han sido seleccionados</p>
-                          <button
-                            onClick={reset}
-                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 hover:scale-105 active:scale-95 transition-all"
-                            aria-label="Iniciar un nuevo sorteo"
-                          >
-                            Nuevo Sorteo
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}
