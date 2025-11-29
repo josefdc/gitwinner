@@ -1,0 +1,5 @@
+{
+  "name": "GitWinner",
+  "description": "An interactive, gamified GitHub Issue raffle picker featuring high-fidelity slot machine animations and AI-powered winner announcements.",
+  "requestFramePermissions": []
+}
