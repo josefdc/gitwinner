@@ -5,7 +5,7 @@ interface SlotMachineProps {
   candidates: Candidate[];
   winner: Candidate | null;
   isSpinning: boolean;
-  onSpinEnd: () => void;
+  onSpinEnd: (winner: Candidate) => void;
 }
 
 const SPIN_DURATION_MS = 3800;
@@ -47,6 +47,9 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
 
   // Handle the Spin
   useEffect(() => {
+    let blurTimeoutId: ReturnType<typeof setTimeout>;
+    let endTimeoutId: ReturnType<typeof setTimeout>;
+    
     if (isSpinning && winner && scrollContainerRef.current) {
       setHighlightWinner(false);
 
@@ -104,14 +107,14 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
           container.style.filter = 'blur(6px)';
 
           // Clear blur as we slow down
-          setTimeout(() => {
+          blurTimeoutId = setTimeout(() => {
             if (scrollContainerRef.current) {
                scrollContainerRef.current.style.filter = 'blur(0px)';
             }
           }, SPIN_DURATION_MS * 0.7);
 
           // Impact / Jiggle at the end
-          setTimeout(() => {
+          endTimeoutId = setTimeout(() => {
             if (shakerRef.current) {
               // A custom keyframe-like shake using transition or animation
               // Simple vertical recoil
@@ -128,11 +131,17 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
             }
             
             setHighlightWinner(true);
-            onSpinEnd();
+            onSpinEnd(winner);
           }, SPIN_DURATION_MS); 
         });
       });
     }
+    
+    // Cleanup function to prevent memory leaks
+    return () => {
+      if (blurTimeoutId) clearTimeout(blurTimeoutId);
+      if (endTimeoutId) clearTimeout(endTimeoutId);
+    };
   }, [isSpinning, winner, candidates]);
 
   return (

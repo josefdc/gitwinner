@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Convierte los comentarios de un Issue de GitHub en un emocionante sorteo para DevFest Pereira">
     <title>GitWinner - Sorteo de GitHub | DevFest Pereira</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -32,6 +33,37 @@
       .font-mono {
         font-family: 'JetBrains Mono', monospace;
       }
+
+      /* Respect user preference for reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      /* Focus visible styles for accessibility */
+      :focus-visible {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
+
+      /* Skip to main content link */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        z-index: 100;
+        transition: top 0.2s;
+      }
+      .skip-link:focus {
+        top: 0;
+      }
     </style>
   <script type="importmap">
 {
@@ -46,6 +78,7 @@
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

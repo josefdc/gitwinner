@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Particle {
-  id: number;
   x: number;
   y: number;
   color: string;
@@ -10,69 +9,108 @@ interface Particle {
   speedY: number;
   rotation: number;
   rotationSpeed: number;
+  shape: 'circle' | 'square';
 }
 
-const COLORS = ['#FFC700', '#FF0055', '#0099FF', '#22CC88', '#FFFFFF'];
+const COLORS = ['#FFC700', '#FF0055', '#0099FF', '#22CC88', '#FFFFFF', '#FF6B35', '#7B2CBF'];
 
 export const Confetti: React.FC = () => {
-  const [particles, setParticles] = useState<Particle[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const animationIdRef = useRef<number>(0);
 
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size to window size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
     // Generate initial particles
-    const count = 150;
-    const newParticles: Particle[] = [];
+    const count = prefersReducedMotion ? 30 : 150;
+    const particles: Particle[] = [];
     
     for (let i = 0; i < count; i++) {
-      newParticles.push({
-        id: i,
-        x: 50, // Start center-ish (percent)
-        y: -10, // Start above screen
+      particles.push({
+        x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+        y: -20 - Math.random() * 100,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        size: Math.random() * 8 + 4,
-        speedX: (Math.random() - 0.5) * 2, // Spread
-        speedY: Math.random() * 3 + 2, // Fall speed
-        rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 10
+        size: Math.random() * 10 + 5,
+        speedX: (Math.random() - 0.5) * 8,
+        speedY: Math.random() * 4 + 3,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        shape: Math.random() > 0.5 ? 'circle' : 'square'
       });
     }
-    setParticles(newParticles);
+    particlesRef.current = particles;
 
-    // Animation Loop
-    let animationId: number;
+    // Animation Loop using Canvas - no React re-renders!
     const animate = () => {
-      setParticles(prev => prev.map(p => ({
-        ...p,
-        x: p.x + p.speedX * 0.5,
-        y: p.y + p.speedY * 0.5,
-        rotation: p.rotation + p.rotationSpeed,
-        speedY: p.speedY + 0.05 // Gravity
-      })).filter(p => p.y < 110)); // Remove if off screen
-
-      animationId = requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      let activeParticles = 0;
+      
+      for (const p of particlesRef.current) {
+        // Update position
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.rotation += p.rotationSpeed;
+        p.speedY += 0.15; // Gravity
+        p.speedX *= 0.99; // Air resistance
+        
+        // Skip if off screen
+        if (p.y > canvas.height + 50) continue;
+        activeParticles++;
+        
+        // Draw particle
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.min(1, (canvas.height - p.y + 100) / 200);
+        
+        if (p.shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        }
+        
+        ctx.restore();
+      }
+      
+      // Continue animation if particles are still visible
+      if (activeParticles > 0) {
+        animationIdRef.current = requestAnimationFrame(animate);
+      }
     };
 
-    animationId = requestAnimationFrame(animate);
+    animationIdRef.current = requestAnimationFrame(animate);
 
-    return () => cancelAnimationFrame(animationId);
+    return () => {
+      cancelAnimationFrame(animationIdRef.current);
+      window.removeEventListener('resize', resizeCanvas);
+    };
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          style={{
-            position: 'absolute',
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            backgroundColor: p.color,
-            transform: `rotate(${p.rotation}deg)`,
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px', // Mix of circles and squares
-          }}
-        />
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-50"
+      aria-hidden="true"
+    />
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Candidate } from '../types';
 import { Trophy, Share2 } from 'lucide-react';
 
@@ -18,7 +18,11 @@ const CELEBRATION_MESSAGES = [
 ];
 
 export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner, roundName }) => {
-  const message = CELEBRATION_MESSAGES[Math.floor(Math.random() * CELEBRATION_MESSAGES.length)];
+  // Memoize message to prevent re-selection on every render
+  const message = useMemo(() => 
+    CELEBRATION_MESSAGES[Math.floor(Math.random() * CELEBRATION_MESSAGES.length)],
+    [winner.id] // Only recalculate when winner changes
+  );
 
   return (
     <div className="mt-4 animate-in fade-in zoom-in duration-500 w-full max-w-md">

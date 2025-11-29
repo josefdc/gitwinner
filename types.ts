@@ -18,6 +18,7 @@ export interface Candidate {
 export enum AppState {
   IDLE = 'IDLE',
   FETCHING = 'FETCHING',
+  LOADED = 'LOADED', // Participantes cargados, esperando confirmación
   READY = 'READY',
   SPINNING = 'SPINNING',
   WINNER = 'WINNER',
