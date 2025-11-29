@@ -146,7 +146,7 @@ function App() {
             )}
 
             {state === AppState.WINNER && winner && (
-              <WinnerAnnouncer winner={winner} issueUrl={issueUrl} />
+              <WinnerAnnouncer winner={winner} />
             )}
           </div>
         )}
@@ -154,7 +154,7 @@ function App() {
 
       {/* Footer */}
       <footer className="mt-auto pt-12 text-center text-gray-600 text-sm">
-        <p>Built with React, Tailwind & Gemini API</p>
+        <p>Built with React & Tailwind CSS</p>
       </footer>
     </div>
   );

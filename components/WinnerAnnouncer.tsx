@@ -1,30 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Candidate } from '../types';
-import { generateAnnouncement } from '../services/geminiService';
-import { Trophy, Share2, Sparkles } from 'lucide-react';
+import { Trophy, Share2 } from 'lucide-react';
 
 interface WinnerAnnouncerProps {
   winner: Candidate;
-  issueUrl: string;
 }
 
-export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner, issueUrl }) => {
-  const [message, setMessage] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+const CELEBRATION_MESSAGES = [
+  "The stars have aligned! You're our champion! 🌟",
+  "Fortune favors the bold, and today it favors you! 🎯",
+  "Out of everyone, destiny chose YOU! 🏆",
+  "The raffle gods have spoken! Victory is yours! ⚡",
+  "You beat the odds and claimed the crown! 👑",
+];
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchMessage = async () => {
-      setLoading(true);
-      const msg = await generateAnnouncement(winner, issueUrl);
-      if (isMounted) {
-        setMessage(msg);
-        setLoading(false);
-      }
-    };
-    fetchMessage();
-    return () => { isMounted = false; };
-  }, [winner, issueUrl]);
+export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
+  const message = CELEBRATION_MESSAGES[Math.floor(Math.random() * CELEBRATION_MESSAGES.length)];
 
   return (
     <div className="mt-8 animate-in fade-in zoom-in duration-500">
@@ -49,16 +40,9 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner, issueU
           <p className="text-indigo-300 font-mono text-sm uppercase tracking-widest mb-6">Winner Selected</p>
 
           <div className="bg-gray-800/50 rounded-lg p-6 w-full max-w-lg border border-gray-700 relative overflow-hidden">
-            {loading ? (
-              <div className="flex items-center justify-center space-x-2 text-gray-400 h-16">
-                 <Sparkles className="animate-spin" size={16} />
-                 <span>AI is writing a speech...</span>
-              </div>
-            ) : (
-              <p className="text-lg text-gray-200 leading-relaxed font-medium">
-                "{message}"
-              </p>
-            )}
+            <p className="text-lg text-gray-200 leading-relaxed font-medium">
+              "{message}"
+            </p>
           </div>
 
           <div className="mt-6 flex gap-3">
