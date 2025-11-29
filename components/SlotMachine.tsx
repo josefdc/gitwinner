@@ -188,7 +188,7 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
                           {candidate.login}
                         </span>
                         <span className={`text-xs uppercase tracking-widest transition-colors duration-300 ${isWinnerRow ? 'text-yellow-600 font-bold' : 'text-gray-500'}`}>
-                          {isWinnerRow ? 'WINNER!' : 'Contender'}
+                          {isWinnerRow ? '¡GANADOR!' : 'Participante'}
                         </span>
                       </div>
                     </div>

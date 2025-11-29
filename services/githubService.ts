@@ -10,7 +10,7 @@ const extractIssueDetails = (url: string) => {
 export const fetchParticipants = async (issueUrl: string): Promise<Candidate[]> => {
   const details = extractIssueDetails(issueUrl);
   if (!details) {
-    throw new Error("Invalid GitHub Issue URL. Format: https://github.com/owner/repo/issues/123");
+    throw new Error("URL de Issue inválida. Formato: https://github.com/owner/repo/issues/123");
   }
 
   const { owner, repo, issueNumber } = details;
@@ -26,12 +26,12 @@ export const fetchParticipants = async (issueUrl: string): Promise<Candidate[]> 
 
     if (!response.ok) {
       if (response.status === 403) {
-        throw new Error("GitHub API Rate Limit Exceeded. Please try again later.");
+        throw new Error("Límite de la API de GitHub excedido. Intenta de nuevo más tarde.");
       }
       if (response.status === 404) {
-        throw new Error("Issue not found or repository is private.");
+        throw new Error("Issue no encontrado o el repositorio es privado.");
       }
-      throw new Error(`GitHub API Error: ${response.statusText}`);
+      throw new Error(`Error de la API de GitHub: ${response.statusText}`);
     }
 
     const data: GithubComment[] = await response.json();
@@ -62,7 +62,7 @@ export const fetchParticipants = async (issueUrl: string): Promise<Candidate[]> 
   });
 
   if (uniqueUsers.size === 0) {
-    throw new Error("No eligible comments found on this issue.");
+    throw new Error("No se encontraron comentarios elegibles en este issue.");
   }
 
   return Array.from(uniqueUsers.values());

@@ -7,11 +7,13 @@ interface WinnerAnnouncerProps {
 }
 
 const CELEBRATION_MESSAGES = [
-  "The stars have aligned! You're our champion! 🌟",
-  "Fortune favors the bold, and today it favors you! 🎯",
-  "Out of everyone, destiny chose YOU! 🏆",
-  "The raffle gods have spoken! Victory is yours! ⚡",
-  "You beat the odds and claimed the crown! 👑",
+  "¡Las estrellas se han alineado! ¡Eres nuestro campeón! 🌟",
+  "¡La fortuna favorece a los valientes, y hoy te favorece a ti! 🎯",
+  "De todos los participantes, ¡el destino te eligió a TI! 🏆",
+  "¡Los dioses del sorteo han hablado! ¡La victoria es tuya! ⚡",
+  "¡Venciste las probabilidades y reclamaste la corona! 👑",
+  "¡Felicitaciones desde DevFest Pereira! 🎉",
+  "¡El código ha decidido! ¡Eres el elegido! 💻",
 ];
 
 export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
@@ -37,7 +39,7 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
           <h2 className="text-4xl font-black text-white mt-6 mb-2 tracking-tight">
             {winner.login}
           </h2>
-          <p className="text-indigo-300 font-mono text-sm uppercase tracking-widest mb-6">Winner Selected</p>
+          <p className="text-indigo-300 font-mono text-sm uppercase tracking-widest mb-6">¡Ganador Seleccionado!</p>
 
           <div className="bg-gray-800/50 rounded-lg p-6 w-full max-w-lg border border-gray-700 relative overflow-hidden">
             <p className="text-lg text-gray-200 leading-relaxed font-medium">
@@ -52,11 +54,11 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
               rel="noreferrer"
               className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full font-semibold transition-colors flex items-center gap-2"
             >
-              View Profile
+              Ver Perfil
             </a>
             <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-semibold transition-colors flex items-center gap-2">
               <Share2 size={18} />
-              Share Result
+              Compartir
             </button>
           </div>
 

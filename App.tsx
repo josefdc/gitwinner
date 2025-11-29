@@ -67,9 +67,10 @@ function App() {
           <Github size={40} className="text-white" />
           <h1 className="text-4xl font-black text-white tracking-tighter">GitWinner</h1>
         </div>
+        <p className="text-sm text-blue-400 font-mono mb-2">DevFest Pereira 2025 🎉</p>
         <p className="text-gray-400 text-lg">
-          Turn your GitHub Issue comments into a high-stakes raffle event.
-          Paste an issue URL below to begin.
+          Convierte los comentarios de un Issue de GitHub en un emocionante sorteo.
+          Pega la URL del issue abajo para comenzar.
         </p>
       </header>
 
@@ -95,7 +96,7 @@ function App() {
                 {state === AppState.FETCHING ? (
                   <RefreshCw className="animate-spin" />
                 ) : (
-                  <>Fetch <span className="hidden sm:inline">Contenders</span></>
+                  <>Cargar <span className="hidden sm:inline">Participantes</span></>
                 )}
               </button>
             </div>
@@ -114,10 +115,10 @@ function App() {
             
             <div className="mb-6 flex items-center justify-between w-full max-w-md px-2">
               <span className="text-sm font-mono text-gray-500">
-                {candidates.length} PARTICIPANTS
+                {candidates.length} PARTICIPANTES
               </span>
               {state === AppState.WINNER && (
-                 <button onClick={reset} className="text-xs text-blue-400 hover:text-blue-300 underline">Start Over</button>
+                 <button onClick={reset} className="text-xs text-blue-400 hover:text-blue-300 underline">Nuevo Sorteo</button>
               )}
             </div>
 
@@ -128,20 +129,20 @@ function App() {
               onSpinEnd={handleSpinEnd}
             />
 
-            {/* Controls */}
+            {/* Controles */}
             {state === AppState.READY && (
               <button
                 onClick={startRaffle}
                 className="mt-8 group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-green-600 font-lg rounded-full hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 ring-offset-[#0d1117] transform active:scale-95 shadow-[0_0_20px_rgba(22,163,74,0.5)] hover:shadow-[0_0_30px_rgba(22,163,74,0.7)]"
               >
                 <Play className="mr-2 fill-current" />
-                START RAFFLE
+                ¡INICIAR SORTEO!
               </button>
             )}
 
             {state === AppState.SPINNING && (
               <div className="mt-8 text-gray-500 font-mono animate-pulse">
-                ROLLING...
+                SORTEANDO...
               </div>
             )}
 
@@ -154,7 +155,7 @@ function App() {
 
       {/* Footer */}
       <footer className="mt-auto pt-12 text-center text-gray-600 text-sm">
-        <p>Built with React & Tailwind CSS</p>
+        <p>Hecho con ❤️ para DevFest Pereira | React & Tailwind CSS</p>
       </footer>
     </div>
   );
