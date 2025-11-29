@@ -138,22 +138,22 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
   return (
     <div className="relative w-full max-w-md mx-auto transform transition-all duration-300">
       {/* Machine Frame */}
-      <div className="bg-gray-800 border-4 border-gray-700 rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10">
+      <div className="bg-white border-4 border-gray-200 rounded-xl overflow-hidden shadow-2xl relative z-10">
         
         {/* Glass Reflections & Overlays */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/10 to-transparent pointer-events-none z-30"></div>
-        <div className="absolute top-0 w-full h-24 bg-gradient-to-b from-gray-900 via-gray-900/90 to-transparent z-20 pointer-events-none"></div>
-        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent z-20 pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/60 to-transparent pointer-events-none z-30"></div>
+        <div className="absolute top-0 w-full h-24 bg-gradient-to-b from-gray-100 via-gray-100/90 to-transparent z-20 pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-gray-100 via-gray-100/90 to-transparent z-20 pointer-events-none"></div>
 
         {/* Center Winner Zone Highlight */}
-        <div className={`absolute top-1/2 -translate-y-1/2 w-full h-24 z-10 pointer-events-none transition-all duration-700 ${highlightWinner ? 'bg-yellow-500/10 border-y border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]' : 'bg-white/5 border-y border-gray-600/30'}`}></div>
+        <div className={`absolute top-1/2 -translate-y-1/2 w-full h-24 z-10 pointer-events-none transition-all duration-700 ${highlightWinner ? 'bg-yellow-400/20 border-y-2 border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.3)]' : 'bg-blue-50/50 border-y border-gray-200'}`}></div>
 
         {/* Indicator Arrows */}
-        <div className={`absolute top-1/2 -translate-y-1/2 left-2 z-30 text-3xl transition-all duration-500 ${highlightWinner ? 'text-yellow-400 scale-125 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]' : 'text-gray-600 opacity-50'}`}>▶</div>
-        <div className={`absolute top-1/2 -translate-y-1/2 right-2 z-30 text-3xl transition-all duration-500 ${highlightWinner ? 'text-yellow-400 scale-125 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]' : 'text-gray-600 opacity-50'}`}>◀</div>
+        <div className={`absolute top-1/2 -translate-y-1/2 left-2 z-30 text-3xl transition-all duration-500 ${highlightWinner ? 'text-yellow-500 scale-125 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]' : 'text-gray-400 opacity-50'}`}>▶</div>
+        <div className={`absolute top-1/2 -translate-y-1/2 right-2 z-30 text-3xl transition-all duration-500 ${highlightWinner ? 'text-yellow-500 scale-125 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]' : 'text-gray-400 opacity-50'}`}>◀</div>
 
         {/* The Reel Window */}
-        <div className="h-72 overflow-hidden relative bg-gray-900">
+        <div className="h-72 overflow-hidden relative bg-gray-50">
            {/* Shaker Container for the landing impact */}
            <div ref={shakerRef} className="w-full h-full">
              {/* The Moving Strip */}
@@ -167,27 +167,27 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
                   return (
                     <div 
                       key={`${candidate.id}-${idx}`} 
-                      className={`h-24 flex items-center px-8 gap-4 border-b border-gray-800/50 transition-all duration-500 ${isWinnerRow ? 'bg-yellow-900/20' : ''}`}
+                      className={`h-24 flex items-center px-8 gap-4 border-b border-gray-200 transition-all duration-500 ${isWinnerRow ? 'bg-yellow-100' : 'bg-white'}`}
                     >
                       <div className="relative">
                         <img 
                           src={candidate.avatarUrl} 
                           alt={candidate.login} 
-                          className={`w-14 h-14 rounded-full border-2 bg-gray-800 object-cover transition-all duration-500 ease-out
+                          className={`w-14 h-14 rounded-full border-2 bg-gray-100 object-cover transition-all duration-500 ease-out
                             ${isWinnerRow 
-                              ? 'w-20 h-20 border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.6)] scale-110 -translate-y-1' 
-                              : 'border-gray-600 shadow-md'}`}
+                              ? 'w-20 h-20 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.6)] scale-110 -translate-y-1' 
+                              : 'border-gray-300 shadow-md'}`}
                         />
                         {isWinnerRow && (
-                          <div className="absolute -inset-2 bg-yellow-400 rounded-full blur-md opacity-20 animate-pulse"></div>
+                          <div className="absolute -inset-2 bg-yellow-400 rounded-full blur-md opacity-30 animate-pulse"></div>
                         )}
                       </div>
                       
                       <div className="flex flex-col overflow-hidden relative z-10">
-                        <span className={`text-xl font-bold truncate font-mono transition-all duration-500 ${isWinnerRow ? 'text-yellow-400 text-2xl drop-shadow-md tracking-wide' : 'text-gray-100'}`}>
+                        <span className={`text-xl font-bold truncate font-mono transition-all duration-500 ${isWinnerRow ? 'text-yellow-700 text-2xl drop-shadow-md tracking-wide' : 'text-gray-800'}`}>
                           {candidate.login}
                         </span>
-                        <span className={`text-xs uppercase tracking-widest transition-colors duration-300 ${isWinnerRow ? 'text-yellow-600 font-bold' : 'text-gray-500'}`}>
+                        <span className={`text-xs uppercase tracking-widest transition-colors duration-300 ${isWinnerRow ? 'text-yellow-600 font-bold' : 'text-gray-400'}`}>
                           {isWinnerRow ? '¡GANADOR!' : 'Participante'}
                         </span>
                       </div>
@@ -200,7 +200,7 @@ export const SlotMachine: React.FC<SlotMachineProps> = ({
       </div>
       
       {/* Base of machine */}
-      <div className="h-4 mx-8 bg-gray-800 rounded-b-xl shadow-xl border-x-2 border-b-2 border-gray-700 transform -translate-y-1 opacity-90"></div>
+      <div className="h-4 mx-8 bg-gray-200 rounded-b-xl shadow-lg border-x-2 border-b-2 border-gray-300 transform -translate-y-1 opacity-90"></div>
     </div>
   );
 };

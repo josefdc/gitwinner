@@ -58,17 +58,17 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col items-center py-12 px-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800 flex flex-col items-center py-12 px-4 relative">
       
       {state === AppState.WINNER && <Confetti />}
 
       <header className="mb-12 text-center max-w-2xl">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <Github size={40} className="text-white" />
-          <h1 className="text-4xl font-black text-white tracking-tighter">GitWinner</h1>
+          <Github size={40} className="text-gray-800" />
+          <h1 className="text-4xl font-black text-gray-900 tracking-tighter">GitWinner</h1>
         </div>
-        <p className="text-sm text-blue-400 font-mono mb-2">DevFest Pereira 2025 🎉</p>
-        <p className="text-gray-400 text-lg">
+        <p className="text-sm text-blue-600 font-mono mb-2">DevFest Pereira 2025 🎉</p>
+        <p className="text-gray-600 text-lg">
           Convierte los comentarios de un Issue de GitHub en un emocionante sorteo.
           Pega la URL del issue abajo para comenzar.
         </p>
@@ -79,12 +79,12 @@ function App() {
         {/* Input Stage */}
         <div className={`transition-all duration-500 ${state !== AppState.IDLE && state !== AppState.ERROR ? 'opacity-50 pointer-events-none scale-95 mb-8 hidden' : 'block'}`}>
           <form onSubmit={handleFetch} className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative flex shadow-2xl">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative flex shadow-xl">
               <input
                 type="text"
                 placeholder="https://github.com/owner/repo/issues/123"
-                className="w-full bg-[#161b22] border border-[#30363d] text-white px-6 py-4 rounded-l-lg focus:outline-none focus:border-blue-500 font-mono text-sm transition-colors"
+                className="w-full bg-white border border-gray-300 text-gray-800 px-6 py-4 rounded-l-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-mono text-sm transition-all"
                 value={issueUrl}
                 onChange={(e) => setIssueUrl(e.target.value)}
               />
@@ -118,7 +118,7 @@ function App() {
                 {candidates.length} PARTICIPANTES
               </span>
               {state === AppState.WINNER && (
-                 <button onClick={reset} className="text-xs text-blue-400 hover:text-blue-300 underline">Nuevo Sorteo</button>
+                 <button onClick={reset} className="text-xs text-blue-600 hover:text-blue-700 underline">Nuevo Sorteo</button>
               )}
             </div>
 
@@ -133,7 +133,7 @@ function App() {
             {state === AppState.READY && (
               <button
                 onClick={startRaffle}
-                className="mt-8 group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-green-600 font-lg rounded-full hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 ring-offset-[#0d1117] transform active:scale-95 shadow-[0_0_20px_rgba(22,163,74,0.5)] hover:shadow-[0_0_30px_rgba(22,163,74,0.7)]"
+                className="mt-8 group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-gradient-to-r from-blue-600 to-green-500 font-lg rounded-full hover:from-blue-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ring-offset-slate-50 transform active:scale-95 shadow-lg hover:shadow-xl"
               >
                 <Play className="mr-2 fill-current" />
                 ¡INICIAR SORTEO!
@@ -154,7 +154,7 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto pt-12 text-center text-gray-600 text-sm">
+      <footer className="mt-auto pt-12 text-center text-gray-500 text-sm">
         <p>Hecho con ❤️ para DevFest Pereira | React & Tailwind CSS</p>
       </footer>
     </div>

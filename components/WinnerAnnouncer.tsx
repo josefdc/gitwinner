@@ -21,11 +21,11 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
 
   return (
     <div className="mt-8 animate-in fade-in zoom-in duration-500">
-      <div className="bg-gradient-to-br from-indigo-900/80 to-purple-900/80 p-1 rounded-2xl shadow-2xl border border-indigo-400/30">
-        <div className="bg-gray-900/90 rounded-xl p-8 flex flex-col items-center text-center backdrop-blur-sm">
+      <div className="bg-gradient-to-br from-blue-500 to-green-500 p-1 rounded-2xl shadow-2xl">
+        <div className="bg-white rounded-xl p-8 flex flex-col items-center text-center">
           
           <div className="relative">
-            <div className="absolute -inset-4 bg-yellow-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
+            <div className="absolute -inset-4 bg-yellow-400 rounded-full blur-xl opacity-40 animate-pulse"></div>
             <img 
               src={winner.avatarUrl} 
               alt={winner.login} 
@@ -36,13 +36,13 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
             </div>
           </div>
 
-          <h2 className="text-4xl font-black text-white mt-6 mb-2 tracking-tight">
+          <h2 className="text-4xl font-black text-gray-900 mt-6 mb-2 tracking-tight">
             {winner.login}
           </h2>
-          <p className="text-indigo-300 font-mono text-sm uppercase tracking-widest mb-6">¡Ganador Seleccionado!</p>
+          <p className="text-blue-600 font-mono text-sm uppercase tracking-widest mb-6">¡Ganador Seleccionado!</p>
 
-          <div className="bg-gray-800/50 rounded-lg p-6 w-full max-w-lg border border-gray-700 relative overflow-hidden">
-            <p className="text-lg text-gray-200 leading-relaxed font-medium">
+          <div className="bg-gray-50 rounded-lg p-6 w-full max-w-lg border border-gray-200 relative overflow-hidden">
+            <p className="text-lg text-gray-700 leading-relaxed font-medium">
               "{message}"
             </p>
           </div>
@@ -52,11 +52,11 @@ export const WinnerAnnouncer: React.FC<WinnerAnnouncerProps> = ({ winner }) => {
               href={`https://github.com/${winner.login}`} 
               target="_blank" 
               rel="noreferrer"
-              className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-full font-semibold transition-colors flex items-center gap-2"
+              className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full font-semibold transition-colors flex items-center gap-2 border border-gray-300"
             >
               Ver Perfil
             </a>
-            <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-semibold transition-colors flex items-center gap-2">
+            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold transition-colors flex items-center gap-2">
               <Share2 size={18} />
               Compartir
             </button>
