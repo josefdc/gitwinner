@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: npm run build
 
-  dependabot-automerge:
+  dependabot-notify:
     runs-on: ubuntu-latest
     needs: build
     if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
@@ -43,8 +43,12 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --auto --squash "$PR_URL"
+      - name: Comment on PR to notify for merge
+        run: |
+          gh pr comment "$PR_URL" --body "✅ CI passed! @josefdc this Dependabot PR is ready to merge.
+
+          **Update type:** ${{ steps.metadata.outputs.update-type }}
+          **Dependency:** ${{ steps.metadata.outputs.dependency-names }}"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
